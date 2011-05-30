@@ -144,9 +144,12 @@ class Nice_Category_Widget extends WP_Widget {
 
 		echo h(__('Exclude'), 5);
 		$checklist = group();
-		$cats = get_categories();
-		foreach ($cats as $cat)
-			$checklist->append(checkbox($this->get_field_name('exclude') . '[]', $this->get_field_id('exclude'), in_array($cat->term_id, $instance['exclude']), $cat->name, $cat->term_id));
+		$cats = get_categories(array('hide_empty' => false));
+		foreach ($cats as $cat) {
+			$pad = count(explode("\n", get_category_parents($cat->term_id, false, "\n"))) - 1;
+			$pad = str_repeat('&emsp;', $pad);
+			$checklist->append(span($pad)->css('white-space', 'pre'), checkbox($this->get_field_name('exclude') . '[]', $this->get_field_id('exclude'), in_array($cat->term_id, $instance['exclude']), $cat->name, $cat->term_id));
+		}
 		echo $checklist;
 		
 	}
