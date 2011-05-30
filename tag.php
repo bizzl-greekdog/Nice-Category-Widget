@@ -208,14 +208,16 @@ if (!function_exists('tag')) {
 		return tag('label')->attr('for', $for)->append($text);
 	}
 	
-	function checkbox($name, $id, $checked = false, $text = false) {
+	function checkbox($name, $id, $checked = false, $text = false, $value = false) {
 		$cb = tag('input')->attr(array(
 			'type' => 'checkbox',
 			'id' => $id,
-			'name' => $id
+			'name' => $name
 		));
 		if ($checked)
 			$cb->attr('checked', 'checked');
+		if ($value)
+			$cb->attr('value', $value);
 		if ($text)
 			$cb = group($cb, label($id, $text), br());
 		return $cb;

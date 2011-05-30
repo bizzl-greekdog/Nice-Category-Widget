@@ -81,57 +81,49 @@ class Nice_Category_Widget extends WP_Widget {
 		$c = $instance['count'] ? '1' : '0';
 		$h = $instance['hierarchical'] ? '1' : '0';
 		$d = $instance['dropdown'] ? '1' : '0';
+		$e = $instance['exclude'];
 
 		echo $before_widget;
 		if ($title)
 			echo $before_title . $title . $after_title;
 
-		$cat_args = array('orderby' => 'name', 'show_count' => $c, 'hierarchical' => $h);
+		$cat_args = array('orderby' => 'name', 'show_count' => $c, 'hierarchical' => $h, 'exclude' => $e);
 
-		if ( $d ) {
+		if ($d) {
 			$cat_args['show_option_none'] = __('Select Category');
 			wp_dropdown_categories(apply_filters('widget_categories_dropdown_args', $cat_args));
-?>
 
-<script type='text/javascript'>
-/* <![CDATA[ */
+			echo script(array(
+				'code' => '
 	var dropdown = document.getElementById("cat");
 	function onCatChange() {
 		if ( dropdown.options[dropdown.selectedIndex].value > 0 ) {
-			location.href = "<?php echo home_url(); ?>/?cat="+dropdown.options[dropdown.selectedIndex].value;
+			location.href = "' . home_url() . '/?cat="+dropdown.options[dropdown.selectedIndex].value;
 		}
 	}
-	dropdown.onchange = onCatChange;
-/* ]]> */
-</script>
+	dropdown.onchange = onCatChange;'
+			));
 
-<?php
+
 		} else {
-?>
-		<ul>
-<?php
-		$cat_args['title_li'] = '';
-		wp_list_categories(apply_filters('widget_categories_args', $cat_args));
-?>
-		</ul>
-<?php
+			$cat_args['title_li'] = '';
+			$cat_args['echo'] = false;
+			echo tag('ul')->append(wp_list_categories(apply_filters('widget_categories_args', $cat_args)));
 		}
 
 		echo $after_widget;
 	}
 
 	function update($new_instance, $old_instance) {
-		$instance = array_merge($old_instance, $new_instance);
-		die(div(pre($instance), pre($_POST)));
-//		$instance['title'] = strip_tags($new_instance['title']);
-//		$instance['count'] = !empty($new_instance['count']) ? 1 : 0;
-//		$instance['hierarchical'] = !empty($new_instance['hierarchical']) ? 1 : 0;
-//		$instance['dropdown'] = !empty($new_instance['dropdown']) ? 1 : 0;
+		$instance['title'] = strip_tags($new_instance['title']);
+		$instance['count'] = !empty($new_instance['count']) ? 1 : 0;
+		$instance['hierarchical'] = !empty($new_instance['hierarchical']) ? 1 : 0;
+		$instance['dropdown'] = !empty($new_instance['dropdown']) ? 1 : 0;
+		$instance['exclude'] = $new_instance['exclude'];
 		return $instance;
 	}
 
 	function form($instance) {
-		echo pre($instance);
 		//Defaults
 		$instance = wp_parse_args((array)$instance, self::$defaults);
 		$title = esc_attr($instance['title']);
@@ -154,10 +146,9 @@ class Nice_Category_Widget extends WP_Widget {
 		$checklist = group();
 		$cats = get_categories();
 		foreach ($cats as $cat)
-			$checklist->append(checkbox($this->get_field_name('exclude') . '[]', $this->get_field_id('exclude'), in_array($cat->term_id, $instance['exclude']), $cat->name));
+			$checklist->append(checkbox($this->get_field_name('exclude') . '[]', $this->get_field_id('exclude'), in_array($cat->term_id, $instance['exclude']), $cat->name, $cat->term_id));
 		echo $checklist;
 		
-		echo pre($instance);
 	}
 	
 }
