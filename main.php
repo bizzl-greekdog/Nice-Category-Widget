@@ -9,6 +9,15 @@
   License: LGPL3
  */
 
+if (!function_exists('join_path')) {
+
+	function join_path() {
+		$fuck = func_get_args();
+		return implode(DIRECTORY_SEPARATOR, $fuck);
+	}
+
+}
+
 require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'tag.php');
 
 class Nice_Category_Widget extends WP_Widget {
@@ -20,6 +29,10 @@ class Nice_Category_Widget extends WP_Widget {
 	protected static function init_defaults() {
 		self::$defaults = array(
 			'title' => __('Nice Category Widget', self::$domain),
+			'count' => false,
+			'hierarchical' => false,
+			'dropdown' => false,
+			'exclude' => array()
 		);
 	}
 
@@ -46,7 +59,7 @@ class Nice_Category_Widget extends WP_Widget {
 
 	/* Actual Widget Code */
 
-	function Nice_Navigation_Widget() {
+	function Nice_Category_Widget() {
 		$widget_ops = array(
 			'classname' => self::$domain,
 			'description' => __('A nicer, filtering category widget.', self::$domain)
@@ -62,13 +75,89 @@ class Nice_Category_Widget extends WP_Widget {
 	}
 	
 	function widget($args, $instance) {
+		extract($args);
+
+		$title = apply_filters('widget_title', empty($instance['title']) ? __('Categories') : $instance['title'], $instance, $this->id_base);
+		$c = $instance['count'] ? '1' : '0';
+		$h = $instance['hierarchical'] ? '1' : '0';
+		$d = $instance['dropdown'] ? '1' : '0';
+
+		echo $before_widget;
+		if ($title)
+			echo $before_title . $title . $after_title;
+
+		$cat_args = array('orderby' => 'name', 'show_count' => $c, 'hierarchical' => $h);
+
+		if ( $d ) {
+			$cat_args['show_option_none'] = __('Select Category');
+			wp_dropdown_categories(apply_filters('widget_categories_dropdown_args', $cat_args));
+?>
+
+<script type='text/javascript'>
+/* <![CDATA[ */
+	var dropdown = document.getElementById("cat");
+	function onCatChange() {
+		if ( dropdown.options[dropdown.selectedIndex].value > 0 ) {
+			location.href = "<?php echo home_url(); ?>/?cat="+dropdown.options[dropdown.selectedIndex].value;
+		}
+	}
+	dropdown.onchange = onCatChange;
+/* ]]> */
+</script>
+
+<?php
+		} else {
+?>
+		<ul>
+<?php
+		$cat_args['title_li'] = '';
+		wp_list_categories(apply_filters('widget_categories_args', $cat_args));
+?>
+		</ul>
+<?php
+		}
+
+		echo $after_widget;
 	}
 
 	function update($new_instance, $old_instance) {
-		return array_merge($old_instance, $new_instance);
+		$instance = array_merge($old_instance, $new_instance);
+		die(div(pre($instance), pre($_POST)));
+//		$instance['title'] = strip_tags($new_instance['title']);
+//		$instance['count'] = !empty($new_instance['count']) ? 1 : 0;
+//		$instance['hierarchical'] = !empty($new_instance['hierarchical']) ? 1 : 0;
+//		$instance['dropdown'] = !empty($new_instance['dropdown']) ? 1 : 0;
+		return $instance;
 	}
 
 	function form($instance) {
+		echo pre($instance);
+		//Defaults
+		$instance = wp_parse_args((array)$instance, self::$defaults);
+		$title = esc_attr($instance['title']);
+		
+		echo p('')->append(
+			label($this->get_field_id('title'), __('Title:')),
+			tag('input')->attr(array(
+				'id' => $this->get_field_id('title'),
+				'name' => $this->get_field_name('title'),
+				'type' => 'text',
+				'value' => $title
+			))
+		);
+		
+		echo checkbox($this->get_field_name('dropdown'), $this->get_field_id('dropdown'), $instance['dropdown'], __('Display as dropdown'));
+		echo checkbox($this->get_field_name('count'), $this->get_field_id('count'), $instance['count'], __('Show post counts'));
+		echo checkbox($this->get_field_name('hierarchical'), $this->get_field_id('hierarchical'), $instance['hierarchical'], __('Show hierarchy'));
+
+		echo h(__('Exclude'), 5);
+		$checklist = group();
+		$cats = get_categories();
+		foreach ($cats as $cat)
+			$checklist->append(checkbox($this->get_field_name('exclude') . '[]', $this->get_field_id('exclude'), in_array($cat->term_id, $instance['exclude']), $cat->name));
+		echo $checklist;
+		
+		echo pre($instance);
 	}
 	
 }
