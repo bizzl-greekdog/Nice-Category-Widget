@@ -129,7 +129,7 @@ class Nice_Category_Widget extends WP_Widget {
 		$title = esc_attr($instance['title']);
 		
 		echo p('')->append(
-			label($this->get_field_id('title'), __('Title:')),
+			label($this->get_field_id('title'), __('Title:', self::$domain)),
 			tag('input')->attr(array(
 				'id' => $this->get_field_id('title'),
 				'name' => $this->get_field_name('title'),
@@ -138,11 +138,11 @@ class Nice_Category_Widget extends WP_Widget {
 			))
 		);
 		
-		echo checkbox($this->get_field_name('dropdown'), $this->get_field_id('dropdown'), $instance['dropdown'], __('Display as dropdown'));
-		echo checkbox($this->get_field_name('count'), $this->get_field_id('count'), $instance['count'], __('Show post counts'));
-		echo checkbox($this->get_field_name('hierarchical'), $this->get_field_id('hierarchical'), $instance['hierarchical'], __('Show hierarchy'));
+		echo checkbox($this->get_field_name('dropdown'), $this->get_field_id('dropdown'), $instance['dropdown'], __('Display as dropdown', self::$domain));
+		echo checkbox($this->get_field_name('count'), $this->get_field_id('count'), $instance['count'], __('Show post counts', self::$domain));
+		echo checkbox($this->get_field_name('hierarchical'), $this->get_field_id('hierarchical'), $instance['hierarchical'], __('Show hierarchy', self::$domain));
 
-		echo h(__('Exclude'), 5);
+		echo h(__('Exclude:', self::$domain), 5);
 		$checklist = group();
 		$cats = get_categories(array('hide_empty' => false));
 		foreach ($cats as $cat) {

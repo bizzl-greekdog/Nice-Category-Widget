@@ -1,0 +1,60 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Benjamin Kleiner
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: nice-category-widget 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-30 15:51+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/main.php:31 src/main.php:74
+msgid "Nice Category Widget"
+msgstr ""
+
+#: src/main.php:65
+msgid "A nicer, filtering category widget."
+msgstr ""
+
+#: src/main.php:80
+msgid "Categories"
+msgstr ""
+
+#: src/main.php:93
+msgid "Select Category"
+msgstr ""
+
+#: src/main.php:132
+msgid "Title:"
+msgstr ""
+
+#: src/main.php:141
+msgid "Display as dropdown"
+msgstr ""
+
+#: src/main.php:142
+msgid "Show post counts"
+msgstr ""
+
+#: src/main.php:143
+msgid "Show hierarchy"
+msgstr ""
+
+#: src/main.php:145
+msgid "Exclude"
+msgstr ""
+
+#: src/tag.php:180
+msgid ""
+"This feature requires inline frames. You have iframes disabled or your "
+"browser does not support them."
+msgstr ""
