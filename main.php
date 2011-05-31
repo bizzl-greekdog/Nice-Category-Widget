@@ -20,6 +20,29 @@ if (!function_exists('join_path')) {
 
 require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'tag.php');
 
+class Nice_Category_Widget_Walker extends Walker_Category {
+	
+	public function start_lvl(&$output, $depth, $args) {}
+	
+	public function end_lvl(&$output, $depth, $args) {}
+	
+	public function start_el(&$output, $cat, $depth, $args) {
+		$pad = str_repeat('&emsp;', $depth);
+		$output .= group(
+				span($pad)->css('white-space', 'pre'),
+				checkbox(
+					$args['id'] . '[]',
+					$args['name'] . '-' . $cat->cat_ID,
+					in_array($cat->term_id, $args['exclude']),
+					$cat->name,
+					$cat->term_id
+				)->addClass('childof-' . $cat->category_parent, 'category-exclude-cb')->addClass($args['classes'])
+		);
+	}
+	
+	public function end_el(&$output, $page, $depth, $args) {}
+}
+
 class Nice_Category_Widget extends WP_Widget {
 
 	protected static $domain = 'nice-category-widget';
@@ -142,15 +165,43 @@ class Nice_Category_Widget extends WP_Widget {
 		echo checkbox($this->get_field_name('count'), $this->get_field_id('count'), $instance['count'], __('Show post counts', self::$domain));
 		echo checkbox($this->get_field_name('hierarchical'), $this->get_field_id('hierarchical'), $instance['hierarchical'], __('Show hierarchy', self::$domain));
 
-		echo h(__('Exclude:', self::$domain), 5);
-		$checklist = group();
-		$cats = get_categories(array('hide_empty' => false));
-		foreach ($cats as $cat) {
-			$pad = count(explode("\n", get_category_parents($cat->term_id, false, "\n"))) - 1;
-			$pad = str_repeat('&emsp;', $pad);
-			$checklist->append(span($pad)->css('white-space', 'pre'), checkbox($this->get_field_name('exclude') . '[]', $this->get_field_id('exclude'), in_array($cat->term_id, $instance['exclude']), $cat->name, $cat->term_id));
+		// TODO Externalize script
+		
+		$exclude_cb_classes = preg_replace(array('/\[/', '/\]/'), array('-', ''), $this->get_field_name('exclude'));
+		
+		echo script(array('code' => '
+jQuery(function($) {
+	$("input.' . $exclude_cb_classes . '.category-exclude-cb").change(function() {
+		var $this = $(this);
+		var id = $this.attr("id").split("-").pop();
+		if ($this.attr("checked")) {
+			$("input.' . $exclude_cb_classes . '.childof-" + id).attr("checked", "checked");
+			$("input.' . $exclude_cb_classes . '.childof-" + id).change();
+		} else {
+			parents = $this.attr("class").match(/childof-[0-9]+/g);
+			for (var i in parents) {
+				id = "#' . $this->get_field_id('exclude') . '-" + parents[i].split("-").pop();
+				$(id).removeAttr("checked").change();
+			}
 		}
-		echo $checklist;
+		
+	});
+});
+'));
+		
+		echo h(__('Exclude:', self::$domain), 5);
+		$cats = get_categories(array('hide_empty' => false, 'orderby' => 'name', 'hierarchical' => true));
+		if (empty($cats)) {
+			error_log('$cats is empty!!!');
+		} else {
+			$walker = new Nice_Category_Widget_Walker();
+			echo p($walker->walk($cats, 0, array(
+				'id' => $this->get_field_name('exclude'),
+				'name' => $this->get_field_id('exclude'),
+				'exclude' => $instance['exclude'],
+				'classes' => $exclude_cb_classes
+			)));
+		}
 		
 	}
 	

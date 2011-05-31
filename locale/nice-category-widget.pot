@@ -50,7 +50,7 @@ msgid "Show hierarchy"
 msgstr ""
 
 #: src/main.php:145
-msgid "Exclude"
+msgid "Exclude:"
 msgstr ""
 
 #: src/tag.php:180
