@@ -159,7 +159,7 @@ class Nice_Category_Widget extends WP_Widget {
 		echo $after_widget;
 	}
 
-	function update($new_instance, $old_instance) {
+	function update($new_instance, $instance) {
 		$instance['title'] = strip_tags($new_instance['title']);
 		$instance['count'] = !empty($new_instance['count']) ? 1 : 0;
 		$instance['hierarchical'] = !empty($new_instance['hierarchical']) ? 1 : 0;
